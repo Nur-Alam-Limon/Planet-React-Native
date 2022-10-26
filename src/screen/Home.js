@@ -1,5 +1,5 @@
-import { View, StyleSheet, FlatList, Pressable } from "react-native";
-import React from "react";
+import { View, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
+import React, { useState } from "react";
 import Text from "../components/text/text";
 import PlanetHeader from "../components/planet-header";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,7 +9,7 @@ import { spacing } from "../theme/spacing";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const planetItem = ({item}) => {
+const PlanetItem = ({ item }) => {
   const { name, color } = item;
   const navigation = useNavigation();
   return (
@@ -31,15 +31,37 @@ const planetItem = ({item}) => {
 };
 
 export default function Home({ navigation }) {
+
+  const [list, setList] = useState(PLANET_LIST);
+
   const renderItem = ({ item }) => {
-    return <planetItem item={item} />;
+    return <PlanetItem item={item} />;
   };
+
+  const searchFilter=(text)=>{
+    const filteredList=PLANET_LIST.filter(item=>{
+      const itemName=item.name.toLowerCase();
+      const userText=text.toLowerCase();
+
+      return itemName.indexOf(userText)>-1;
+    })
+
+    setList(filteredList);
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <PlanetHeader />
+      <TextInput
+        placeholder="Type the planet name"
+        placeholderTextColor={colors.white}
+        autoCorrect={false}
+        style={styles.search}
+        onChangeText={(text)=>searchFilter(text)}
+      />
       <FlatList
         contentContainerStyle={styles.list}
-        data={PLANET_LIST}
+        data={list}
         keyExtractor={(item) => item.name}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.seperator}></View>}
@@ -75,4 +97,11 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.white,
     borderBottomWidth: 0.5,
   },
+  search: {
+    padding: spacing[3],
+    color: colors.white,
+    borderBottomColor: colors.white,
+    borderBottomWidth: 1,
+    margin: spacing[5],
+  }
 });
